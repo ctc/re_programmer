@@ -1,3 +1,4 @@
+<pre>
 enocean module programmer for raspberry pi board
 
 Allows to programm programm-code and optional configuration-data into a
@@ -30,3 +31,4 @@ SCLKDIO1
 GND
 SCSEDIO0
 GND
+</pre>
