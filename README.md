@@ -1,5 +1,17 @@
 <pre>
-enocean module programmer for raspberry pi board
+usage: re_programmer.py [-h] [-c CONF_FILE] -p PROG_FILE [-f] [-l] [-v]
+
+Enocean module programmer for Raspberry Pi.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -c CONF_FILE, --conf CONF_FILE
+                        configuration file in intel hex format
+  -p PROG_FILE, --prog PROG_FILE
+                        program file in intel hex format
+  -f, --force           force local stored config
+  -l, --lock            set codeprotection
+  -v, --version         show program's version number and exit
 
 Allows to programm programm-code and optional configuration-data into a
 enocean module.
