@@ -347,6 +347,8 @@ def ExecuteBist():
         Send( data)
         data = Receive( 8)
         InfoOk( data, 'WriteFlashPage')
+        if( data[4] != 0x00):
+                 raise Exception( "ExecuteBist: failed")
         print "\tDone"
 
 def Verify( new_conf_hex, new_prog_hex, program_size):
