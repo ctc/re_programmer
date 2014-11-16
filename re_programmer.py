@@ -44,7 +44,7 @@ def Main():
         parser.add_argument( '-p', '--prog', dest='prog_file', action='store', required=True, help='program file in intel hex format') 
         parser.add_argument( '-f', '--force', dest='force', action='store_const', default=False, const=True, help='force local stored config')
         parser.add_argument( '-l', '--lock', dest='lock', action='store_const', default=False, const=True, help='set codeprotection')
-        parser.add_argument( '-v', '--version', action= 'version', version= textwrap.dedent("%(prog)s 1.0\ncopyright 2014 Ingo Flaschberger"))
+        parser.add_argument( '-v', '--version', action= 'version', version= textwrap.dedent("%(prog)s 1.1\ncopyright 2014 Ingo Flaschberger"))
         args = parser.parse_args()
 
         os.system( '/sbin/modprobe spi-bcm2708')
