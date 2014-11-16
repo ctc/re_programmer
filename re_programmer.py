@@ -212,10 +212,17 @@ def ReadInfo():
         print "Read info area"
 	info = ReadFlashPage( PAGE_INFO, SIZE_INFO)
 	lot = info[2:7]
-	print "\tlot: " + List2Hex( lot, '')
+	print "\tlot:\t" + chr(lot[0]) + chr(lot[1]) + chr(lot[2]) + chr(lot[3]) + ('%02X' %  lot[4])
 	id = info[64:68]
-	print "\tid: " + List2Hex( id, '')
-	return  { 'lot': lot, 'id': id}
+	print "\tid:\t" + List2Hex( id, '')
+	_lock = info[255]
+	if( _lock == 0x7F):
+	        lock = True
+	        print "\tlock:\tyes"
+        else:
+                lock = False
+                print "\tlock:\tno"
+        return  { 'lot': lot, 'id': id, 'lock': lock}
 
 def ReadConfig( id = '', force_backup = False, clear_code_protect = True):
 
@@ -225,6 +232,8 @@ def ReadConfig( id = '', force_backup = False, clear_code_protect = True):
                         conf_hex = IntelHex( SAVE_PATH + '/' + List2Hex( id, '') + '_cfg.hex')
                         if( len( conf_hex.tobinarray()) != 256):
                                 raise Exception( "ReadConfig: wrong config file size: " + SAVE_PATH + '/' + List2Hex( id, '') + '_cfg.hex')
+			print "\tloaded config from backup:"
+			DecodeConfig( conf_hex, '\t\t')
                 except:
                         raise Exception( "ReadConfig: no backup config found")
                 print "\tDone"
@@ -251,17 +260,33 @@ def ReadConfig( id = '', force_backup = False, clear_code_protect = True):
                                 conf_hex = IntelHex( SAVE_PATH + '/' + List2Hex( id, '') + '_cfg.hex')
                                 if( len( conf_hex.tobinarray()) != 256):
                                         raise Exception( "ReadConfig: wrong config file size: " + SAVE_PATH + '/' + List2Hex( id, '') + '_cfg.hex')
+				print "\tloaded config from backup:"
+				DecodeConfig( conf_hex, '\t\t')
                         except:
                                 raise Exception( "ReadConfig: empty chip and no backup config found")
                 else:
                         conf_hex.tofile( SAVE_PATH + '/' + List2Hex( id, '') + '_cfg.hex', format='hex')
+			print "\tloaded config from module:"
+			DecodeConfig( conf_hex, '\t\t')
         
         print "\tDone"
         return conf_hex
 
+def DecodeConfig( conf_hex, prefix = ''):
+	conf = conf_hex.tobinarray()
+	api = conf[4:8]
+	print prefix + "API version:\t\t" + str( api[0]) + '.' +  str( api[1]) + '.' +  str( api[2]) + '.' +  str( api[3])
+	app = conf[8:12]
+	print prefix + "App version:\t\t" + str( app[0]) + '.' +  str( app[1]) + '.' +  str( app[2]) + '.' +  str( app[3])
+	desc = str(bytearray(conf[12:28])).split("\0")[0]
+	print prefix + "App description:\t" + desc
+
 def MergeConfig( old_conf, new_conf_file):
+	print "Merge config:"
         new_conf = IntelHex( new_conf_file)
         old_conf.merge( new_conf, overlap='replace')
+	print "\tnew config:"
+	DecodeConfig( old_conf, prefix = '\t\t')
         return old_conf
 
 def GetProgSize( conf):
