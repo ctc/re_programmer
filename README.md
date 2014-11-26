@@ -1,5 +1,5 @@
 <pre>
-usage: re_programmer.py [-h] [-c CONF_FILE] -p PROG_FILE [-f] [-l] [-v]
+usage: re_programmer.py [-h] [-c CONF_FILE] [-p PROG_FILE] [-f] [-l] [-v]
 
 Enocean module programmer for Raspberry Pi.
 
@@ -12,6 +12,7 @@ optional arguments:
   -f, --force           force local stored config
   -l, --lock            set codeprotection
   -v, --version         show program's version number and exit
+
 
 Allows to programm programm-code and optional configuration-data into a
 enocean module.

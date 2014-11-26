@@ -41,10 +41,10 @@ def Main():
 
         parser = argparse.ArgumentParser( description='Enocean module programmer for Raspberry Pi.', formatter_class=argparse.RawDescriptionHelpFormatter)
         parser.add_argument( '-c', '--conf', dest='conf_file', action='store', default='', help='configuration file in intel hex format')
-        parser.add_argument( '-p', '--prog', dest='prog_file', action='store', required=True, help='program file in intel hex format') 
+        parser.add_argument( '-p', '--prog', dest='prog_file', action='store', default='', help='program file in intel hex format') 
         parser.add_argument( '-f', '--force', dest='force', action='store_const', default=False, const=True, help='force local stored config')
         parser.add_argument( '-l', '--lock', dest='lock', action='store_const', default=False, const=True, help='set codeprotection')
-        parser.add_argument( '-v', '--version', action= 'version', version= textwrap.dedent("%(prog)s 1.1\ncopyright 2014 Ingo Flaschberger"))
+        parser.add_argument( '-v', '--version', action= 'version', version= textwrap.dedent("%(prog)s 1.2\ncopyright 2014 Ingo Flaschberger"))
         args = parser.parse_args()
 
         os.system( '/sbin/modprobe spi-bcm2708')
@@ -56,19 +56,21 @@ def Main():
                 Connect()
                 info = ReadInfo()
                 old_conf = ReadConfig( info['id'], args.force)
-                if( args.conf_file == ''):
-                        new_conf = old_conf
-                else:
-                        new_conf = MergeConfig( old_conf, args.conf_file)
-                program_size = GetProgSize( new_conf)
-                new_program = ReadProgram( args.prog_file)
-                WriteProgArea( new_program, program_size)
-                WriteConfigArea( new_conf)
-                ExecuteBist()
-                Verify( new_conf, new_program, program_size)
-                if( args.lock == True):
-                        CodeProtect()
-                        VerifyCodeProtect()
+                
+                if( args.prog_file != ''):
+                        if( args.conf_file == ''):
+                                new_conf = old_conf
+                        else:
+                                new_conf = MergeConfig( old_conf, args.conf_file)
+                        program_size = GetProgSize( new_conf)
+                        new_program = ReadProgram( args.prog_file)
+                        WriteProgArea( new_program, program_size)
+                        WriteConfigArea( new_conf)
+                        ExecuteBist()
+                        Verify( new_conf, new_program, program_size)
+                        if( args.lock == True):
+                                CodeProtect()
+                                VerifyCodeProtect()
         finally:
                 End()
 
