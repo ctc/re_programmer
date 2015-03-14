@@ -14,7 +14,7 @@ optional arguments:
   -v, --version         show program's version number and exit
 
 
-Allows to programm programm-code and optional configuration-data into a
+Allows to program program-code and optional configuration-data into a
 enocean module.
 Configuration-data is backuped into 'data' directory.
 
