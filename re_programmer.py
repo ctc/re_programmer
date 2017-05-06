@@ -47,7 +47,11 @@ def Main():
         parser.add_argument( '-v', '--version', action= 'version', version= textwrap.dedent("%(prog)s 1.2\ncopyright 2014 Ingo Flaschberger"))
         args = parser.parse_args()
 
-        os.system( '/sbin/modprobe spi-bcm2708')
+        try:
+                os.system( '/sbin/modprobe spi-bcm2708 -q')
+        except:
+                os.system( '/sbin/modprobe spi-bcm2835')
+
         if( not os.path.isdir( SAVE_PATH)):
                 os.system( 'mkdir ' + SAVE_PATH)
 
