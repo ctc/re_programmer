@@ -122,7 +122,7 @@ def GetSWVersion():
     if( data[0] != 0xa5 or data[1] != 0x5a or data[2] != 0xa5 or data[3] != 0x8c):
         raise Exception( "GetSWVersion: wrong answer")
            
-    print "\tdetected bootloader version: " + str( data[4]) + "." + str( data[5]) + "." + str( data[6])
+    print( "\tdetected bootloader version: " + str( data[4]) + "." + str( data[5]) + "." + str( data[6]))
     
 def ReverseBits(byte):
     byte = ((byte & 0xF0) >> 4) | ((byte & 0x0F) << 4)
@@ -136,13 +136,13 @@ def Send( buffer):
     text_clear()
     count = 0
     n = 4
-    for i in xrange(0, len( buffer), n):
+    for i in range(0, len( buffer), n):
         count += 4
         if( count % 1024 == 0):
             text_reprint( "\tWrote: " + str( count/1024) + " KB\n")
     
         send = list( buffer[i:i+n])
-        #print 'send' + str(i) + ': ' + List2Hex( send)
+        #print( 'send' + str(i) + ': ' + List2Hex( send))
         
         if( Ready() != 1):
             raise Exception( "Enocean Module not ready")
@@ -166,7 +166,7 @@ def Receive( size):
     count = 0    
     n = 4
     receive = []
-    for  i in xrange(0, size, n):
+    for  i in range(0, size, n):
         count += 4
         if( count % 1024 == 0):
             text_reprint( "\tRead: " + str( count/1024) + " KB\n")
@@ -182,7 +182,7 @@ def CalcChecksum( buffer):
     chksum = 0
     for i in range(2, 7):
          chksum += buffer[i]
-         #print "calc: " + List2Hex( [buffer[i]]) + "\n"
+         #print( "calc: " + List2Hex( [buffer[i]]) + "\n")
     return chksum % 256
 
 def ReadFlashPage( start, size):
@@ -199,7 +199,7 @@ def ReadFlashPage( start, size):
 def Connect():
     global spi
 
-    print "Connect to module"
+    print( "Connect to module")
     Enable( 1)
     Reset( 1)
     spi = spidev.SpiDev()
@@ -215,34 +215,34 @@ def Connect():
 
 def ReadInfo():
 
-    print "Read info area"
+    print( "Read info area")
     info = ReadFlashPage( PAGE_INFO, SIZE_INFO)
     lot = info[2:7]
-    print "\tlot:\t" + chr(lot[0]) + chr(lot[1]) + chr(lot[2]) + chr(lot[3]) + ('%02X' %  lot[4])
+    print( "\tlot:\t" + chr(lot[0]) + chr(lot[1]) + chr(lot[2]) + chr(lot[3]) + ('%02X' %  lot[4]))
     id = info[64:68]
-    print "\tid:\t" + List2Hex( id, '')
+    print( "\tid:\t" + List2Hex( id, ''))
     _lock = info[255]
     if( _lock == 0x7F):
         lock = True
-        print "\tlock:\tyes"
+        print( "\tlock:\tyes")
     else:
         lock = False
-        print "\tlock:\tno"
+        print( "\tlock:\tno")
     return  { 'lot': lot, 'id': id, 'lock': lock}
 
 def ReadConfig( id = '', force_backup = False, clear_code_protect = True):
 
-    print "Read config area"
+    print( "Read config area")
     if( force_backup == True):
         try:
             conf_hex = IntelHex( SAVE_PATH + '/' + List2Hex( id, '') + '_cfg.hex')
             if( len( conf_hex.tobinarray()) != 256):
                 raise Exception( "ReadConfig: wrong config file size: " + SAVE_PATH + '/' + List2Hex( id, '') + '_cfg.hex')
-            print "\tloaded config from backup:"
+            print( "\tloaded config from backup:")
             DecodeConfig( conf_hex, '\t\t')
         except:
             raise Exception( "ReadConfig: no backup config found")
-        print "\tDone"
+        print( "\tDone")
         return conf_hex
 
     conf = ReadFlashPage( PAGE_CONF, SIZE_CONF)
@@ -262,36 +262,36 @@ def ReadConfig( id = '', force_backup = False, clear_code_protect = True):
     if( id != ''):
         if( empty == True):
             try:
-                print "\tEmpty config area, read config from backup: " + SAVE_PATH + '/' + List2Hex( id, '') + '_cfg.hex'
+                print( "\tEmpty config area, read config from backup: " + SAVE_PATH + '/' + List2Hex( id, '') + '_cfg.hex')
                 conf_hex = IntelHex( SAVE_PATH + '/' + List2Hex( id, '') + '_cfg.hex')
                 if( len( conf_hex.tobinarray()) != 256):
                     raise Exception( "ReadConfig: wrong config file size: " + SAVE_PATH + '/' + List2Hex( id, '') + '_cfg.hex')
-                print "\tloaded config from backup:"
+                print( "\tloaded config from backup:")
                 DecodeConfig( conf_hex, '\t\t')
             except:
                 raise Exception( "ReadConfig: empty chip and no backup config found")
         else:
             conf_hex.tofile( SAVE_PATH + '/' + List2Hex( id, '') + '_cfg.hex', format='hex')
-            print "\tloaded config from module:"
+            print( "\tloaded config from module:")
             DecodeConfig( conf_hex, '\t\t')
     
-    print "\tDone"
+    print( "\tDone")
     return conf_hex
 
 def DecodeConfig( conf_hex, prefix = ''):
     conf = conf_hex.tobinarray()
     api = conf[4:8]
-    print prefix + "API version:\t\t" + str( api[0]) + '.' +  str( api[1]) + '.' +  str( api[2]) + '.' +  str( api[3])
+    print( prefix + "API version:\t\t" + str( api[0]) + '.' +  str( api[1]) + '.' +  str( api[2]) + '.' +  str( api[3]))
     app = conf[8:12]
-    print prefix + "App version:\t\t" + str( app[0]) + '.' +  str( app[1]) + '.' +  str( app[2]) + '.' +  str( app[3])
+    print( prefix + "App version:\t\t" + str( app[0]) + '.' +  str( app[1]) + '.' +  str( app[2]) + '.' +  str( app[3]))
     desc = str(bytearray(conf[12:28])).split("\0")[0]
-    print prefix + "App description:\t" + desc
+    print( prefix + "App description:\t" + desc)
 
 def MergeConfig( old_conf, new_conf_file):
-    print "Merge config:"
+    print( "Merge config:")
     new_conf = IntelHex( new_conf_file)
     old_conf.merge( new_conf, overlap='replace')
-    print "\tnew config:"
+    print( "\tnew config:")
     DecodeConfig( old_conf, prefix = '\t\t')
     return old_conf
 
@@ -314,7 +314,7 @@ def ReadProgram( prog_file):
 
 def WriteProgArea( prog_hex, size):
 
-    print "Write program area to module"
+    print( "Write program area to module")
     
     prog = prog_hex.tobinarray()
     
@@ -331,7 +331,7 @@ def WriteProgArea( prog_hex, size):
     Send( prog)
     data = Receive( 8)
     InfoOk( data, 'WriteProgArea')
-    print "\tDone"
+    print( "\tDone")
 
 def WriteFlashPage( start, write):
     
@@ -346,7 +346,7 @@ def WriteFlashPage( start, write):
 
 def WriteConfigArea( new_conf_hex):
 
-    print "Write config area to module"
+    print( "Write config area to module")
     new_conf = new_conf_hex.tobinarray()
     WriteFlashPage( PAGE_CONF, new_conf)
     # 1st 4 bytes are only byte access
@@ -356,23 +356,23 @@ def WriteConfigArea( new_conf_hex):
     WriteFlashByte( PAGE_CONF * 256 + 3, new_conf[3])
     
     
-    print "\tDone"
+    print( "\tDone")
 
 def WriteFlashByte( address, write):
     
-    data = [ 0xA5, 0x5A, 0xA5, CMD_WR_FLASH_BYTE, address / 256, address % 256, write, 0x00]
+    data = [ 0xA5, 0x5A, 0xA5, CMD_WR_FLASH_BYTE, int( address / 256), int( address % 256), write, 0x00]
     data[7] = CalcChecksum( data)
     Send( data)
     data = Receive( 8)
     InfoOk( data, 'WriteFlashPage')
 
 def WriteProgSize( size):
-    print "Write program size"
+    print( "Write program size")
     WriteFlashByte( PAGE_CONF * 256 + 0, size)
-    print "\tDone"
+    print( "\tDone")
 
 def ExecuteBist():
-    print "Run builtin selftest"
+    print( "Run builtin selftest")
     data = [ 0xA5, 0x5A, 0xA5, CMD_WR_BIST, 0x00, 0x00, 0x00, 0x00]
     data[7] = CalcChecksum( data)
     Send( data)
@@ -380,11 +380,11 @@ def ExecuteBist():
     InfoOk( data, 'WriteFlashPage')
     if( data[4] != 0x00):
          raise Exception( "ExecuteBist: failed")
-    print "\tDone"
+    print( "\tDone")
 
 def Verify( new_conf_hex, new_prog_hex, program_size):
        
-    print "Verify config area"
+    print( "Verify config area")
     read_conf = ReadFlashPage( PAGE_CONF, SIZE_CONF)
     new_conf = new_conf_hex.tobinarray()
     i = 0
@@ -392,9 +392,9 @@ def Verify( new_conf_hex, new_prog_hex, program_size):
         if( c != read_conf[i]):
             raise Exception( "Verify: config area mismatch at: " + ("%X" % i))
         i += 1
-    print "\tDone"
+    print( "\tDone")
     
-    print "Verify program area"
+    print( "Verify program area")
     data = [ 0xA5, 0x5A, 0xA5, CMD_RD_PRG_AREA, program_size, 0x00, 0x00, 0x00]
     data[7] = CalcChecksum( data)
     Send( data)
@@ -407,20 +407,20 @@ def Verify( new_conf_hex, new_prog_hex, program_size):
         if( p != read_prog[i]):
             raise Exception( "Verify: program area mismatch at: " + ("%X" % i))
         i += 1
-    print "\tDone"
+    print( "\tDone")
     
 def CodeProtect():
-    print "Set codeprotect bit"
+    print( "Set codeprotect bit")
     WriteFlashByte( PAGE_CONF * 256 + 1, 0x00)
-    print "\tDone"
+    print( "\tDone")
 
 def VerifyCodeProtect():
     
-    print "Verify codeprotect bit"
+    print( "Verify codeprotect bit")
     read_conf = ReadFlashPage( PAGE_CONF, SIZE_CONF)
     if( read_conf[1] != 0x00):
         raise Exception( "VerifyCodeProtect: codeprotection is not set")
-    print "\tDone"
+    print( "\tDone")
 
 def text_clear():
     global text
