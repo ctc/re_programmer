@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# copyright (c) 2014 Ingo Flaschberger
+# copyright (c) 2018 Ingo Flaschberger
 # enocean raspberry programmer
 
 import RPi.GPIO as GPIO
@@ -44,7 +44,7 @@ def Main():
     parser.add_argument( '-p', '--prog', dest='prog_file', action='store', default='', help='program file in intel hex format') 
     parser.add_argument( '-f', '--force', dest='force', action='store_const', default=False, const=True, help='force local stored config')
     parser.add_argument( '-l', '--lock', dest='lock', action='store_const', default=False, const=True, help='set codeprotection')
-    parser.add_argument( '-v', '--version', action= 'version', version= textwrap.dedent("%(prog)s 1.2\ncopyright 2014 Ingo Flaschberger"))
+    parser.add_argument( '-v', '--version', action= 'version', version= textwrap.dedent("%(prog)s 1.3\ncopyright 2018 Ingo Flaschberger"))
     args = parser.parse_args()
 
     try:
