@@ -83,7 +83,7 @@ def Main():
             WriteConfigArea( new_conf, True if (args.prog_file != '') else False)
             ExecuteBist()
             Verify( new_conf, new_program, program_size)
-            if( args.lock == True):
+            if( args.lock == True and args.prog_file != ''):
                 CodeProtect()
                 VerifyCodeProtect()
     finally:
