@@ -403,7 +403,10 @@ def Verify( new_conf_hex, new_prog_hex, program_size):
     i = 0
     for c in new_conf:
         if( c != read_conf[i]):
-            raise Exception( "Verify: config area mismatch at: " + ("%X" % i))
+            if( new_prog_hex == None and i == 1):
+                print( "Verify: ignore program size")
+            else:
+                raise Exception( "Verify: config area mismatch at: " + ("%X" % i))
         i += 1
     print( "\tDone")
     
