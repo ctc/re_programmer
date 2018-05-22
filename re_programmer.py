@@ -55,21 +55,32 @@ def Main():
     if( not os.path.isdir( SAVE_PATH)):
         os.system( 'mkdir ' + SAVE_PATH)
 
+    print( "Info:")
+    if( args.prog_file != ''):
+        print( "\tFlash program file: " + args.prog_file)
+    if( args.conf_file != ''):
+        print( "\tFlash config file: " + args.prog_file)
+    if( args.prog_file == '' and args.conf_file == ''):
+        print( "\tRead config from module only")
+
     try:
         Init()
         Connect()
         info = ReadInfo()
         old_conf = ReadConfig( info['id'], args.force)
         
-        if( args.prog_file != ''):
+        if( args.prog_file != '' or args.conf_file != ''):
             if( args.conf_file == ''):
                 new_conf = old_conf
             else:
                 new_conf = MergeConfig( old_conf, args.conf_file)
             program_size = GetProgSize( new_conf)
-            new_program = ReadProgram( args.prog_file)
-            WriteProgArea( new_program, program_size)
-            WriteConfigArea( new_conf)
+            if( args.prog_file != ''):
+                new_program = ReadProgram( args.prog_file)
+                WriteProgArea( new_program, program_size)
+            else:
+                new_program = None
+            WriteConfigArea( new_conf, True if (args.prog_file != '') else False)
             ExecuteBist()
             Verify( new_conf, new_program, program_size)
             if( args.lock == True):
@@ -145,7 +156,7 @@ def Send( buffer):
         #print( 'send' + str(i) + ': ' + List2Hex( send))
         
         if( Ready() != 1):
-            raise Exception( "Enocean Module not ready")
+            WaitTillReady( 500)
         
         spi.xfer2( send)
         time.sleep( 0.00002)
@@ -274,6 +285,7 @@ def ReadConfig( id = '', force_backup = False, clear_code_protect = True):
             conf_hex.tofile( SAVE_PATH + '/' + List2Hex( id, '') + '_cfg.hex', format='hex')
             print( "\tloaded config from module:")
             DecodeConfig( conf_hex, '\t\t')
+            print( "\t\tdumped config to: " + SAVE_PATH + '/' + List2Hex( id, '') + '_cfg.hex')
     
     print( "\tDone")
     return conf_hex
@@ -344,17 +356,18 @@ def WriteFlashPage( start, write):
      data = Receive( 8)
      InfoOk( data, 'WriteFlashPage')
 
-def WriteConfigArea( new_conf_hex):
+def WriteConfigArea( new_conf_hex, update_prog_size):
 
     print( "Write config area to module")
     new_conf = new_conf_hex.tobinarray()
     WriteFlashPage( PAGE_CONF, new_conf)
-    # 1st 4 bytes are only byte access
-    WriteFlashByte( PAGE_CONF * 256 + 0, new_conf[0])
-    WriteFlashByte( PAGE_CONF * 256 + 1, new_conf[1])
-    WriteFlashByte( PAGE_CONF * 256 + 2, new_conf[2])
-    WriteFlashByte( PAGE_CONF * 256 + 3, new_conf[3])
     
+    if( update_prog_size): 
+        # 1st 4 bytes are only byte access
+        WriteFlashByte( PAGE_CONF * 256 + 0, new_conf[0])
+        WriteFlashByte( PAGE_CONF * 256 + 1, new_conf[1])
+        WriteFlashByte( PAGE_CONF * 256 + 2, new_conf[2])
+        WriteFlashByte( PAGE_CONF * 256 + 3, new_conf[3])
     
     print( "\tDone")
 
@@ -394,20 +407,21 @@ def Verify( new_conf_hex, new_prog_hex, program_size):
         i += 1
     print( "\tDone")
     
-    print( "Verify program area")
-    data = [ 0xA5, 0x5A, 0xA5, CMD_RD_PRG_AREA, program_size, 0x00, 0x00, 0x00]
-    data[7] = CalcChecksum( data)
-    Send( data)
-    data = Receive( 8)
-    InfoOk( data, 'WriteFlashPage')
-    read_prog = Receive( program_size * 256)
-    new_prog = new_prog_hex.tobinarray()
-    i = 0
-    for p in new_prog:
-        if( p != read_prog[i]):
-            raise Exception( "Verify: program area mismatch at: " + ("%X" % i))
-        i += 1
-    print( "\tDone")
+    if( new_prog_hex != None):
+        print( "Verify program area")
+        data = [ 0xA5, 0x5A, 0xA5, CMD_RD_PRG_AREA, program_size, 0x00, 0x00, 0x00]
+        data[7] = CalcChecksum( data)
+        Send( data)
+        data = Receive( 8)
+        InfoOk( data, 'WriteFlashPage')
+        read_prog = Receive( program_size * 256)
+        new_prog = new_prog_hex.tobinarray()
+        i = 0
+        for p in new_prog:
+            if( p != read_prog[i]):
+                raise Exception( "Verify: program area mismatch at: " + ("%X" % i))
+            i += 1
+        print( "\tDone")
     
 def CodeProtect():
     print( "Set codeprotect bit")
